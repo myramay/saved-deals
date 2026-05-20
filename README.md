@@ -1,6 +1,6 @@
 # saved-deals
 
-Take-home project for Scout. Single HTML file, no build step.
+Take-home project for Scout --> single HTML file, no build step
 
 ## what it does
 
