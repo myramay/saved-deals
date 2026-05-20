@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saved Deals</title>
+  <!-- grabbed Outfit from google fonts — it's clean but has a little personality,
+       works well for a shopping-type UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #fef0f7;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2.5rem 1rem 5rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* header */
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    .header-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ec4899;
+      margin-bottom: 0.4rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      color: #9d6b8a;
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+
+
+    /* deal cards */
+
+    .deals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .deal-card {
+      background: #fff;
+      border: 1.5px solid #fad4e8;
+      border-left: 4px solid #ec4899; /* the pink stripe — little design touch */
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      user-select: none;
+      transition: box-shadow 0.15s ease, transform 0.12s ease, border-color 0.15s;
+    }
+
+    .deal-card:hover {
+      box-shadow: 0 6px 24px rgba(236, 72, 153, 0.12);
+      transform: translateY(-1px);
+      border-color: #f472b6;
+      border-left-color: #db2777;
+    }
+
+    .deal-card:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .deal-card:focus-visible {
+      outline: 2px solid #ec4899;
+      outline-offset: 2px;
+    }
+
+    .deal-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .deal-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .deal-prices {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+
+    .price-current {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #be185d;
+    }
+
+    .price-original {
+      font-size: 0.8rem;
+      color: #c9a3b8;
+      text-decoration: line-through;
+    }
+
+    /* solid pink badge — more pop than the light green, fits the vibe */
+    .badge {
+      background: #ec4899;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: 0.3px;
+    }
+
+
+    /* skeleton loading — pink-tinted shimmer */
+
+    @keyframes shimmer {
+      0%   { background-position: -700px 0; }
+      100% { background-position:  700px 0; }
+    }
+
+    .skeleton-card {
+      background: #fff;
+      border: 1.5px solid #fad4e8;
+      border-left: 4px solid #fad4e8;
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .skeleton-line {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #fce7f3 25%, #fbcfe8 50%, #fce7f3 75%);
+      background-size: 700px 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+      margin-bottom: 0.7rem;
+    }
+
+    .skeleton-line:last-child { margin-bottom: 0; }
+    .skeleton-line.wide   { width: 55%; }
+    .skeleton-line.medium { width: 35%; }
+    .skeleton-line.narrow { width: 20%; }
+
+
+    /* buttons */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.6rem 1.3rem;
+      border-radius: 999px; /* pill — looks good with the pink theme */
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      line-height: 1;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: #ec4899;
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: #db2777; }
+
+    /* using pink ghost for "clear" instead of red — keeps the palette consistent.
+       it's still obviously a less-important action without screaming danger. */
+    .btn-danger {
+      background: transparent;
+      color: #be185d;
+      border: 1.5px solid #fad4e8;
+      margin-top: 1.5rem;
+      width: 100%;
+      font-weight: 500;
+    }
+
+    .btn-danger:hover { background: #fdf2f8; border-color: #f9a8d4; }
+
+    .btn-restore {
+      background: #fce7f3;
+      color: #be185d;
+      border: 1.5px solid #fad4e8;
+      font-weight: 600;
+    }
+
+    .btn-restore:hover { background: #fbcfe8; }
+
+
+    /* empty state */
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem 3rem;
+    }
+
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fce7f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+
+    .empty-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #ec4899;
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .empty-state h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.35rem;
+    }
+
+    .empty-state p {
+      color: #b07898;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+
+    /* modal */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(100, 20, 60, 0.35); /* pinkish tint instead of gray */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 0; /* using sections instead of uniform padding */
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(12px);
+      transition: transform 0.22s ease;
+    }
+
+    .modal-backdrop.open .modal {
+      transform: translateY(0);
+    }
+
+    /* pink bar across the top of the modal — quick way to add personality */
+    .modal-header {
+      background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+      padding: 1.25rem 1.5rem 1rem;
+      position: relative;
+    }
+
+    .modal-deal-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      padding-right: 2rem;
+      line-height: 1.3;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-prices {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* prices are white on the pink header */
+    .modal-prices .price-current {
+      color: #fff;
+      font-size: 1.1rem;
+    }
+
+    .modal-prices .price-original {
+      color: rgba(255,255,255,0.65);
+    }
+
+    /* badge is white/translucent on the pink bg */
+    .modal-prices .badge {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    /* X button sits on the pink header */
+    .modal-close {
+      position: absolute;
+      top: 0.9rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      transition: background 0.15s;
+      font-family: inherit;
+      line-height: 1;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,0.35); }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .notify-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4a1030;
+      margin-bottom: 0.6rem;
+    }
+
+    .notify-input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .notify-input {
+      flex: 1;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid #fad4e8;
+      border-radius: 999px; /* pill to match the buttons */
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -moz-appearance: textfield;
+    }
+
+    .notify-input::-webkit-outer-spin-button,
+    .notify-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .notify-input:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.12);
+    }
+
+    .notify-input.has-error { border-color: #dc2626; }
+
+    /* reserve the space so the form doesn't jump on error */
+    .notify-error {
+      min-height: 1.2rem;
+      font-size: 0.8rem;
+      color: #dc2626;
+      margin-top: 0.5rem;
+      padding-left: 0.25rem;
+    }
+
+    /* success is pink-themed to match the rest of the page */
+    .notify-success {
+      background: #fdf2f8;
+      color: #9d174d;
+      border: 1px solid #fad4e8;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 0.875rem;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .notify-success.visible { display: block; }
+
+    .hidden { display: none !important; }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <div class="header-eyebrow">Your wishlist</div>
+      <h1>Saved Deals</h1>
+      <p>Click any deal to set a price drop alert.</p>
+    </header>
+
+    <!-- skeleton cards — static HTML so they show before JS runs -->
+    <div id="skeleton-list">
+      <div class="skeleton-card">
+        <div class="skeleton-line wide"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line narrow"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-line wide"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line narrow"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-line wide"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line narrow"></div>
+      </div>
+    </div>
+
+    <div id="deals-list" class="deals-list hidden"></div>
+
+    <button id="clear-btn" class="btn btn-danger hidden" onclick="clearDeals()">
+      Clear all deals
+    </button>
+
+    <div id="empty-state" class="empty-state hidden">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+      </div>
+      <h2>Nothing saved yet</h2>
+      <p>You cleared everything. Restore your deals or start fresh.</p>
+      <button class="btn btn-restore" onclick="restoreDeals()">Restore deals</button>
+    </div>
+
+  </div>
+
+
+  <!-- backdrop click is handled in JS — only closes if you click the dark area,
+       not anything inside the modal -->
+  <div id="modal-backdrop" class="modal-backdrop" onclick="handleBackdropClick(event)" role="presentation">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-deal-name">
+
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">&#x2715;</button>
+        <div id="modal-deal-name" class="modal-deal-name"></div>
+        <div class="modal-prices">
+          <span id="modal-price-current" class="price-current"></span>
+          <span id="modal-price-original" class="price-original"></span>
+          <span id="modal-badge" class="badge"></span>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <label class="notify-label" for="notify-input">
+          Alert me when the price drops below:
+        </label>
+        <div class="notify-input-row">
+          <input
+            id="notify-input"
+            class="notify-input"
+            type="number"
+            placeholder="e.g. 75"
+            min="0"
+            step="any"
+            oninput="clearNotifyError()"
+            aria-describedby="notify-error notify-success"
+          />
+          <button class="btn btn-primary" onclick="submitNotify()">Set alert</button>
+        </div>
+
+        <div id="notify-error" class="notify-error" aria-live="polite"></div>
+        <div id="notify-success" class="notify-success" aria-live="polite"></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script>
+
+    // hardcoded deals — stand-in for an API response. prices are numbers not
+    // strings so we can do math on them without parsing later
+    const DEALS = [
+      { id: 1, name: "Nike Air Max 90", current: 89, original: 130 },
+      { id: 2, name: "Dyson V8 Vacuum", current: 249, original: 399 },
+      { id: 3, name: "Lululemon Align Leggings", current: 59, original: 98 },
+      { id: 4, name: "Apple AirPods Pro (2nd gen)", current: 179, original: 249 },
+      { id: 5, name: "Aesop Resurrection Rinse", current: 38, original: 55 },
+    ];
+
+    // keep a frozen copy of the original data so "restore" has something to go back to.
+    // Object.freeze is shallow, but the values here are all primitives so that's fine.
+    const ORIGINAL_DEALS = Object.freeze(DEALS.map(d => ({ ...d })));
+
+    // this is what the UI actually renders — gets wiped on clear, repopulated on restore
+    let activeDeals = [...DEALS];
+
+    // which deal is open in the modal right now (null when closed)
+    let currentModalDeal = null;
+
+
+    // computing percent-off from the actual prices rather than storing it separately —
+    // that way if a price changes the badge stays in sync automatically. avoids the
+    // classic bug where someone updates the price but forgets the badge string.
+    function percentOff(current, original) {
+      return Math.round((1 - current / original) * 100);
+    }
+
+    function fmt(n) {
+      return "$" + n;
+    }
+
+    // escaping before innerHTML injection — the data is hardcoded right now but
+    // if this ever pulls from an API you don't want a product name like
+    // <script>... blowing up the page
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+
+    // renders all cards from activeDeals into #deals-list.
+    // we just nuke the whole list and re-render rather than diffing — 5 items,
+    // not worth the complexity of doing it surgically
+    function renderDeals() {
+      const list = document.getElementById("deals-list");
+      list.innerHTML = "";
+
+      activeDeals.forEach(deal => {
+        const pct = percentOff(deal.current, deal.original);
+
+        const card = document.createElement("div");
+        card.className = "deal-card";
+        card.dataset.dealId = deal.id;
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", `${deal.name}, ${fmt(deal.current)}, ${pct}% off`);
+
+        card.innerHTML = `
+          <div class="deal-info">
+            <div class="deal-name">${escapeHtml(deal.name)}</div>
+            <div class="deal-prices">
+              <span class="price-current">${fmt(deal.current)}</span>
+              <span class="price-original">${fmt(deal.original)}</span>
+            </div>
+          </div>
+          <span class="badge">${pct}% off</span>
+        `;
+
+        card.addEventListener("click", () => openModal(deal));
+
+        // keyboard support — without this, tab-focused cards don't respond to enter/space
+        card.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault(); // space would scroll the page otherwise
+            openModal(deal);
+          }
+        });
+
+        list.appendChild(card);
+      });
+
+      syncVisibility();
+    }
+
+    // shows/hides the three main UI sections based on whether we have deals.
+    // keeping this in one place so the states can't get out of sync
+    function syncVisibility() {
+      const hasDeals = activeDeals.length > 0;
+      document.getElementById("deals-list").classList.toggle("hidden", !hasDeals);
+      document.getElementById("clear-btn").classList.toggle("hidden", !hasDeals);
+      document.getElementById("empty-state").classList.toggle("hidden", hasDeals);
+    }
+
+
+    function clearDeals() {
+      activeDeals = [];
+      renderDeals();
+    }
+
+    function restoreDeals() {
+      // spread each object so we're not handing out references into the frozen array
+      activeDeals = ORIGINAL_DEALS.map(d => ({ ...d }));
+      renderDeals();
+    }
+
+
+    function openModal(deal) {
+      currentModalDeal = deal;
+
+      const pct = percentOff(deal.current, deal.original);
+
+      // textContent for the name (safe), textContent for prices (they're just numbers)
+      document.getElementById("modal-deal-name").textContent = deal.name;
+      document.getElementById("modal-price-current").textContent = fmt(deal.current);
+      document.getElementById("modal-price-original").textContent = fmt(deal.original);
+      document.getElementById("modal-badge").textContent = `${pct}% off`;
+
+      // reset the form — if you close and reopen a different deal you shouldn't
+      // see the previous deal's error message or success banner
+      const input = document.getElementById("notify-input");
+      input.value = "";
+      input.disabled = false;
+      input.classList.remove("has-error");
+      input.closest(".notify-input-row").querySelector("button").disabled = false;
+      document.getElementById("notify-error").textContent = "";
+      document.getElementById("notify-success").classList.remove("visible");
+
+      document.getElementById("modal-backdrop").classList.add("open");
+
+      // slight delay before focusing — if you focus() immediately the browser
+      // sometimes scrolls to the input before the modal transition finishes,
+      // which looks weird. 60ms is enough to let the animation start
+      setTimeout(() => input.focus(), 60);
+    }
+
+    function closeModal() {
+      document.getElementById("modal-backdrop").classList.remove("open");
+      currentModalDeal = null;
+    }
+
+    // only close if you clicked the backdrop itself, not something inside the modal.
+    // clicks on child elements bubble up to the backdrop, so we have to check target.
+    function handleBackdropClick(event) {
+      if (event.target === document.getElementById("modal-backdrop")) {
+        closeModal();
+      }
+    }
+
+    // escape to close — feels wrong when this doesn't work on a modal
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeModal();
+    });
+
+
+    function submitNotify() {
+      if (!currentModalDeal) return;
+
+      const input = document.getElementById("notify-input");
+      const errorEl = document.getElementById("notify-error");
+      const successEl = document.getElementById("notify-success");
+
+      const raw = input.value.trim();
+      const value = parseFloat(raw);
+
+      // check 1: is it actually a number?
+      // checking raw === "" separately gives a better message for the blank case,
+      // since parseFloat("") is NaN and "please enter a valid number" reads weird
+      // when the field is just empty
+      if (raw === "" || isNaN(value) || !isFinite(value)) {
+        showNotifyError(input, errorEl, "Please enter a valid number.");
+        return;
+      }
+
+      // check 2: has to be below what it already costs — otherwise the alert
+      // would fire immediately or never, which is confusing
+      if (value >= currentModalDeal.current) {
+        showNotifyError(input, errorEl, `Enter a price below the current ${fmt(currentModalDeal.current)}.`);
+        return;
+      }
+
+      // passed both checks — in real life this would POST to an alerts endpoint
+      input.classList.remove("has-error");
+      errorEl.textContent = "";
+      successEl.textContent = `You're on the list! We'll let you know when ${currentModalDeal.name} drops below ${fmt(value)}.`;
+      successEl.classList.add("visible");
+
+      // disable after success so they can't submit twice
+      input.disabled = true;
+      input.closest(".notify-input-row").querySelector("button").disabled = true;
+    }
+
+    function showNotifyError(input, errorEl, msg) {
+      input.classList.add("has-error");
+      errorEl.textContent = msg;
+      input.focus();
+    }
+
+    // clears the error inline as the user types — feels more responsive than
+    // making them hit submit again to find out if their correction worked
+    function clearNotifyError() {
+      document.getElementById("notify-input").classList.remove("has-error");
+      document.getElementById("notify-error").textContent = "";
+    }
+
+
+    // fake the async load — 800ms skeleton, then render.
+    // if this were a real fetch you'd swap setTimeout for fetch().then() and
+    // the renderDeals() call at the end would be identical
+    setTimeout(() => {
+      document.getElementById("skeleton-list").style.display = "none";
+      renderDeals();
+    }, 800);
+
+  </script>
+</body>
+</html>
